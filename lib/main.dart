@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'day_1/widgetlifecycle/widgetlifecycle.dart';
+import 'package:flutter_intern/day_2/screens/colorchangingbutton.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,6 +10,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: NumberWidget());
+    return const MaterialApp(home: ColorChangingButton());
   }
 }
