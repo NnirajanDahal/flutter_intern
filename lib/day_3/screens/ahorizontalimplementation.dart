@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_intern/day_3/screens/verticleimplementation.dart';
+import 'package:flutter_intern/day_3/screens/bverticleimplementation.dart';
 
 class HorizontalImplementation extends StatefulWidget {
   const HorizontalImplementation({super.key});
@@ -29,7 +29,7 @@ class _HorizontalImplementationState extends State<HorizontalImplementation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Horizontal Direction")),
+      // appBar: AppBar(title: const Text("Horizontal Direction")),
       body: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         scrollDirection: Axis.horizontal,

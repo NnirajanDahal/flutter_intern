@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'changeimagescreen.dart';
+import 'bchangeimagescreen.dart';
 
 class ColorChangingButton extends StatefulWidget {
   const ColorChangingButton({super.key});
@@ -79,19 +79,20 @@ class _ColorChangingButtonState extends State<ColorChangingButton> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // actions: [
-        //   IconButton(
-        //       onPressed: () {
-        //         Navigator.push(
-        //             context,
-        //             MaterialPageRoute(
-        //                 builder: (context) => ChangeIconAndImage()));
-        //       },
-        //       icon: const Icon(Icons.arrow_right_alt))
-        // ],
-        title: const Text("Day 1 Screen"),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.white,
+      //   // actions: [
+      //   //   IconButton(
+      //   //       onPressed: () {
+      //   //         Navigator.push(
+      //   //             context,
+      //   //             MaterialPageRoute(
+      //   //                 builder: (context) => ChangeIconAndImage()));
+      //   //       },
+      //   //       icon: const Icon(Icons.arrow_right_alt))
+      //   // ],
+      //   title: const Text("Day 1 Screen"),
+      // ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

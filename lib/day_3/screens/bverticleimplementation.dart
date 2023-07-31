@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_intern/day_3/screens/wrapwidget.dart';
+import 'package:flutter_intern/day_3/screens/cwrapwidget.dart';
 
 class VerticleImplementation extends StatefulWidget {
   const VerticleImplementation({super.key});
@@ -12,7 +12,6 @@ class VerticleImplementation extends StatefulWidget {
 class _VerticleImplementationState extends State<VerticleImplementation> {
   bool floatingButtonPressed = false;
   DateTime myDateTime = DateTime.now();
-  List currentIndex = ["0", "1", "2", "3", "4"];
   List images = [
     "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_960_720.jpg",
     "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_960_720.jpg",
@@ -46,7 +45,7 @@ class _VerticleImplementationState extends State<VerticleImplementation> {
         title: const Text("Verticle Direction"),
       ),
       body: ListView.builder(
-        itemCount: floatingButtonPressed ? images.length : currentIndex.length,
+        itemCount: floatingButtonPressed ? images.length : 5,
         itemBuilder: (context, index) {
           return Container(
             color: Colors.white,

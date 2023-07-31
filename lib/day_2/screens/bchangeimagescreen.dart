@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'imageviewscreen.dart';
+import 'cimageviewscreen.dart';
 
 class ChangeIconAndImage extends StatefulWidget {
   const ChangeIconAndImage({super.key});

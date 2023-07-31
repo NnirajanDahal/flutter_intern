@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_intern/day_3/screens/horizontalimplementation.dart';
+import 'package:flutter_intern/day_4/screens/assessment4screen.dart';
+// import 'package:flutter_intern/day_4/screens/assessment4screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,6 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HorizontalImplementation());
+    return const MaterialApp(
+      home: Assessment4Screen(),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
