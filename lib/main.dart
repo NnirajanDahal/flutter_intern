@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_intern/day_4/screens/assessment4screen.dart';
+import 'package:flutter_intern/day_6/screens/data_entry_screen.dart';
 // import 'package:flutter_intern/day_4/screens/assessment4screen.dart';
 
 void main() {
@@ -11,8 +12,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Assessment4Screen(),
+    return MaterialApp(
+      theme: ThemeData(useMaterial3: true),
+      home: const DataEntryScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
