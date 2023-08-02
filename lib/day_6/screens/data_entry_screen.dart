@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_intern/day_6/screens/dummyscreen.dart';
 
 class DataEntryScreen extends StatefulWidget {
@@ -9,25 +10,35 @@ class DataEntryScreen extends StatefulWidget {
   State<DataEntryScreen> createState() => _DataEntryScreenState();
 }
 
+TextEditingController intrestAreasController = TextEditingController();
+TextEditingController languageController = TextEditingController();
+TextEditingController skillsController = TextEditingController();
+TextEditingController jobTitleController = TextEditingController();
+TextEditingController companyNameController = TextEditingController();
+TextEditingController projectTitleController = TextEditingController();
+
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
 class _DataEntryScreenState extends State<DataEntryScreen> {
-  TextEditingController skillsController = TextEditingController();
-  TextEditingController languageController = TextEditingController();
-  TextEditingController intrestAreasController = TextEditingController();
-
   bool switchValue = true;
   bool otherProjectsChanged = true;
   bool involvedInOrganisation = false;
   bool addSkillPressed = false;
+  // bool addJobTitlePressed = false;
+  bool addCompanyNamePressed = false;
   bool addLanguagePressed = false;
+  bool addProjectTitlePressed = false;
   bool addIntrestAreaPressed = false;
   List<String> educationLevel = ["SEE", "+2", "Bachelor", "Master", "Phd"];
   List<String> languages = [];
   List<String> intrestAreas = [];
-  String? selectedLevel;
   List<String> skills = [];
+  List<String> jobTitle = [];
+  List<String> companyName = [];
+  List<String> projectTitle = [];
+  String? selectedLevel;
   String? selectedGender;
+  String? selectedOrganisation;
 
   DateTime experienceSelectedStartDate = DateTime.now();
   DateTime experienceSelectedEndDate = DateTime.now();
@@ -125,6 +136,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 153, 175, 185),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 40, 62, 73),
         centerTitle: true,
         title: const Text("Generate CV"),
       ),
@@ -156,6 +168,18 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                   children: [
                     Expanded(
                       child: TextFormField(
+                        validator: (value) {
+                          if (value!.length > 10) {
+                            return "Not >10 char";
+                          } else if (value.isEmpty) {
+                            setState(() {});
+                            return "Required";
+                          }
+                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r"^[a-zA-Z]+$")),
+                        ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: "First Name",
@@ -167,14 +191,15 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
-                        // validator: (value) {
-                        //   // ignore: unrelated_type_equality_checks
-                        //   if (value == RegExp(r'^[a-zA-Z]*$').hasMatch(value!) &&
-                        //       value.length < 10) {
-                        //     return null;
-                        //   }
-                        //   return "Invalid Name";
-                        // },
+                        validator: (value) {
+                          if (value!.length > 10) {
+                            return "Not >10 char";
+                          }
+                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r"^[a-zA-Z]+$")),
+                        ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: "Middle Name",
@@ -190,14 +215,17 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                   children: [
                     Expanded(
                       child: TextFormField(
-                        // validator: (value) {
-                        //   // ignore: unrelated_type_equality_checks
-                        //   if (value == RegExp(r'^[a-zA-Z]*$').hasMatch(value!) &&
-                        //       value.length < 10) {
-                        //     return null;
-                        //   }
-                        //   return "Invalid Name";
-                        // },
+                        validator: (value) {
+                          if (value!.length > 10) {
+                            return "Not >10 char";
+                          } else if (value.isEmpty) {
+                            return "Required";
+                          }
+                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r"^[a-zA-Z]+$")),
+                        ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: "Last Name",
@@ -209,15 +237,16 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
-                        keyboardType: TextInputType.phone,
-                        // validator: (value) {
-                        //   // ignore: unrelated_type_equality_checks
-                        //   if (value == RegExp(r'^[0-9]+$').hasMatch(value!) &&
-                        //       value.length <= 2) {
-                        //     return null;
-                        //   }
-                        //   return "Enter digits only";
-                        // },
+                        validator: (value) {
+                          if (value!.length > 2) {
+                            return "Invalid Age";
+                          } else if (value.isEmpty) {
+                            return "Required";
+                          }
+                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: const InputDecoration(
                           labelText: "Age",
                           border: OutlineInputBorder(),
@@ -231,33 +260,36 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                 ),
                 Row(
                   children: [
-                    const Text(
-                      ' Gender:',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Radio<String>(
-                      value: 'male',
-                      groupValue: selectedGender,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedGender = value!;
-                        });
-                      },
-                    ),
-                    const Text('Male'),
-                    Radio<String>(
-                      value: 'female',
-                      groupValue: selectedGender,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedGender = value!;
-                        });
-                      },
-                    ),
-                    const Text('Female'),
+                    const Text("Gender :"),
+                    Radio(
+                        value: 'Male',
+                        groupValue: selectedGender,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedGender = value;
+                          });
+                        }),
+                    const Text("Male"),
+                    Radio(
+                        value: 'Female',
+                        groupValue: selectedGender,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedGender = value;
+                          });
+                        }),
+                    const Text("Female"),
                   ],
                 ),
                 TextFormField(
+                  validator: (value) {
+                    if (value!.length > 10) {
+                      return "Not >10 char";
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                  ],
                   controller: skillsController,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
@@ -289,7 +321,11 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                                   runSpacing: 4.0,
                                   children: <Widget>[
                                     Chip(
-                                      label: Text(skills[index]),
+                                      label: Text(
+                                        skills[index],
+                                        style: const TextStyle(
+                                            color: Colors.green, fontSize: 15),
+                                      ),
                                       onDeleted: () {
                                         setState(() {
                                           skills.removeAt(index);
@@ -322,49 +358,168 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                   height: 10,
                 ),
                 TextFormField(
-                  // validator: (value) {
-                  //   // ignore: unrelated_type_equality_checks
-                  //   if (value == RegExp(r'^[a-zA-Z]*$').hasMatch(value!) &&
-                  //       value.length <= 10) {
-                  //     return null;
-                  //   } else if (value.length > 10) {
-                  //     return "Too lengthy title";
-                  //   }
-                  // },
+                  validator: (value) {
+                    if (value!.length > 10) {
+                      return "Not >10 char";
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                  ],
+                  controller: jobTitleController,
                   decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    // suffixIcon: IconButton(
+                    //     onPressed: () {
+                    //       setState(() {
+                    //         addJobTitlePressed = true;
+                    //         jobTitle.add(jobTitleController.text);
+                    //         jobTitleController.clear();
+                    //       });
+                    //     },
+                    //     icon: const Icon(
+                    //       Icons.add,
+                    //       color: Colors.black,
+                    //     )),
                     labelText: "Job Title",
-                    border: OutlineInputBorder(),
                   ),
                 ),
+                // addJobTitlePressed
+                //     ? SizedBox(
+                //         height: 50,
+                //         child: Expanded(
+                //           child: ListView.builder(
+                //             scrollDirection: Axis.horizontal,
+                //             itemCount: jobTitle.length,
+                //             itemBuilder: (context, index) {
+                //               return Wrap(
+                //                   spacing: 8.0,
+                //                   runSpacing: 4.0,
+                //                   children: <Widget>[
+                //                     Chip(
+                //                       label: Text(jobTitle[index]),
+                //                       onDeleted: () {
+                //                         setState(() {
+                //                           jobTitle.removeAt(index);
+                //                           if (jobTitle.isEmpty) {
+                //                             addJobTitlePressed = false;
+                //                           }
+                //                         });
+                //                       },
+                //                     ),
+                //                     const SizedBox(),
+                //                   ]);
+                //             },
+                //           ),
+                //         ),
+                //       )
+                //     :
                 const SizedBox(
                   height: 10,
                 ),
                 TextFormField(
-                  // validator: (value) {
-                  //   // ignore: unrelated_type_equality_checks
-                  //   if (value == RegExp(r'^[a-zA-Z]*$').hasMatch(value!) &&
-                  //       value.length < 10) {
-                  //     return null;
-                  //   }
-                  //   return "Name too lengthy";
-                  // },
-                  decoration: const InputDecoration(
+                  validator: (value) {
+                    if (value!.length > 10) {
+                      return "Not >10 char";
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                  ],
+                  controller: companyNameController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            addCompanyNamePressed = true;
+                            jobTitle.add(jobTitleController.text);
+                            companyName.add(companyNameController.text);
+                            jobTitleController.clear();
+                            companyNameController.clear();
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.add,
+                          color: Colors.black,
+                        )),
                     labelText: "Company Name",
-                    border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                addCompanyNamePressed
+                    ? const SizedBox(
+                        height: 10,
+                      )
+                    : const SizedBox(),
+                addCompanyNamePressed
+                    ? SizedBox(
+                        height: 70,
+                        child: Expanded(
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: companyName.length,
+                            itemBuilder: (context, index) {
+                              return Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 4.0,
+                                  children: <Widget>[
+                                    Chip(
+                                      label: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Text("Job Title:"),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                jobTitle[index],
+                                                style: const TextStyle(
+                                                    color: Colors.green,
+                                                    fontSize: 15),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Text("C. Name:"),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                companyName[index],
+                                                style: const TextStyle(
+                                                    color: Colors.green,
+                                                    fontSize: 15),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                      onDeleted: () {
+                                        setState(() {
+                                          jobTitle.removeAt(index);
+                                          companyName.removeAt(index);
+                                          if (companyName.isEmpty) {
+                                            addCompanyNamePressed = false;
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(),
+                                  ]);
+                            },
+                          ),
+                        ),
+                      )
+                    : const SizedBox(
+                        height: 10,
+                      ),
                 TextFormField(
-                  // validator: (value) {
-                  //   // ignore: unrelated_type_equality_checks
-                  //   if (value == RegExp(r'^[a-zA-Z]*$').hasMatch(value!) &&
-                  //       value.length <= 100) {
-                  //     return null;
-                  //   }
-                  //   return "Summary too lengthy";
-                  // },
+                  validator: (value) {
+                    if (value!.length > 100) {
+                      return "Not >100 char";
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                  ],
                   maxLines: null,
                   decoration: const InputDecoration(
                       labelText: "Summary", border: OutlineInputBorder()),
@@ -421,6 +576,14 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
+                  validator: (value) {
+                    if (value!.length > 10) {
+                      return "Not >10 char";
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                  ],
                   decoration: const InputDecoration(
                       labelText: "Organisation Name",
                       border: OutlineInputBorder()),
@@ -492,6 +655,14 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                   height: 10,
                 ),
                 TextFormField(
+                  validator: (value) {
+                    if (value!.length > 50) {
+                      return "Not >50 char";
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                  ],
                   maxLines: null,
                   decoration: const InputDecoration(
                       labelText: "Achievements", border: OutlineInputBorder()),
@@ -532,13 +703,71 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     ? Column(
                         children: [
                           TextFormField(
-                            decoration: const InputDecoration(
-                                labelText: "Project Title",
-                                border: OutlineInputBorder()),
+                            validator: (value) {
+                              if (value!.length > 10) {
+                                return "Not >10 char";
+                              }
+                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r"^[a-zA-Z]+$")),
+                            ],
+                            controller: projectTitleController,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      addProjectTitlePressed = true;
+                                      projectTitle
+                                          .add(projectTitleController.text);
+                                      projectTitleController.clear();
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.add,
+                                    color: Colors.black,
+                                  )),
+                              labelText: "Project Title",
+                            ),
                           ),
-                          const SizedBox(
-                            height: 5,
-                          ),
+                          addProjectTitlePressed
+                              ? SizedBox(
+                                  height: 50,
+                                  child: Expanded(
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: projectTitle.length,
+                                      itemBuilder: (context, index) {
+                                        return Wrap(
+                                            spacing: 8.0,
+                                            runSpacing: 4.0,
+                                            children: <Widget>[
+                                              Chip(
+                                                label: Text(
+                                                  projectTitle[index],
+                                                  style: const TextStyle(
+                                                      color: Colors.green,
+                                                      fontSize: 15),
+                                                ),
+                                                onDeleted: () {
+                                                  setState(() {
+                                                    projectTitle
+                                                        .removeAt(index);
+                                                    if (projectTitle.isEmpty) {
+                                                      addProjectTitlePressed =
+                                                          false;
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              const SizedBox(),
+                                            ]);
+                                      },
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox(),
                           Column(
                             children: [
                               Row(
@@ -576,6 +805,15 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                             ],
                           ),
                           TextFormField(
+                            validator: (value) {
+                              if (value!.length > 100) {
+                                return "Not >100 char";
+                              }
+                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r"^[a-zA-Z]+$")),
+                            ],
                             maxLines: null,
                             decoration: const InputDecoration(
                                 labelText: "Description",
@@ -596,34 +834,41 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                               ' Involved in any organisation :',
                               style: TextStyle(fontSize: 16),
                             ),
-                      Radio<String>(
-                        value: 'Yes',
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          setState(() {
-                            involvedInOrganisation = true;
-                            selectedGender = value!;
-                          });
-                        },
-                      ),
-                      const Text('Yes'),
-                      Radio<String>(
-                        value: 'No',
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          setState(() {
-                            involvedInOrganisation = false;
-                            selectedGender = value!;
-                          });
-                        },
-                      ),
+                      Radio(
+                          value: 'Yes',
+                          groupValue: selectedOrganisation,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedOrganisation = value;
+                              involvedInOrganisation = true;
+                            });
+                          }),
+                      const Text("Yes"),
+                      Radio(
+                          value: 'No',
+                          groupValue: selectedOrganisation,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedOrganisation = value;
+                              involvedInOrganisation = false;
+                            });
+                          }),
                       const Text('No'),
-                      const SizedBox(
-                        width: 5,
-                      ),
+                      const SizedBox(width: 5),
                       involvedInOrganisation
                           ? Expanded(
                               child: TextFormField(
+                                validator: (value) {
+                                  if (value!.length > 10) {
+                                    return "Not >10 char";
+                                  } else if (value.isEmpty) {
+                                    return "Required";
+                                  }
+                                },
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r"^[a-zA-Z]+$")),
+                                ],
                                 decoration: const InputDecoration(
                                     labelText: "Organisation Name",
                                     border: OutlineInputBorder()),
@@ -668,7 +913,11 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                                   runSpacing: 4.0,
                                   children: <Widget>[
                                     Chip(
-                                      label: Text(languages[index]),
+                                      label: Text(
+                                        languages[index],
+                                        style: const TextStyle(
+                                            color: Colors.green, fontSize: 15),
+                                      ),
                                       onDeleted: () {
                                         setState(() {
                                           languages.removeAt(index);
@@ -719,7 +968,11 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                                   runSpacing: 4.0,
                                   children: <Widget>[
                                     Chip(
-                                      label: Text(intrestAreas[index]),
+                                      label: Text(
+                                        intrestAreas[index],
+                                        style: const TextStyle(
+                                            color: Colors.green, fontSize: 15),
+                                      ),
                                       onDeleted: () {
                                         setState(() {
                                           intrestAreas.removeAt(index);
@@ -737,7 +990,44 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                       )
                     : const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              backgroundColor: Colors.white,
+                              title: const Text("Confirmation?"),
+                              content: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  MaterialButton(
+                                    onPressed: () {
+                                      _formKey.currentState!.reset();
+                                      Navigator.pop(context);
+                                      // Navigator.push(
+                                      //     context,
+                                      //     CupertinoPageRoute(
+                                      //         builder: (context) =>
+                                      //             const DummyScreen()));
+                                    },
+                                    child: const Text("Yes"),
+                                  ),
+                                  MaterialButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("NO"),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      });
+                    }
+                  },
                   child: const Text("Save"),
                 ),
                 const SizedBox(
