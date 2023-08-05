@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_intern/day_6/screens/dummyscreen.dart';
+import 'package:flutter_intern/day_6/screens/data_view_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'cv_model.dart';
 
 class DataEntryScreen extends StatefulWidget {
   const DataEntryScreen({super.key});
@@ -10,14 +13,24 @@ class DataEntryScreen extends StatefulWidget {
   State<DataEntryScreen> createState() => _DataEntryScreenState();
 }
 
-TextEditingController intrestAreasController = TextEditingController();
-TextEditingController languageController = TextEditingController();
+TextEditingController firstNameController = TextEditingController();
+TextEditingController middleNameController = TextEditingController();
+TextEditingController lastNameController = TextEditingController();
+TextEditingController ageController = TextEditingController();
 TextEditingController skillsController = TextEditingController();
 TextEditingController jobTitleController = TextEditingController();
 TextEditingController companyNameController = TextEditingController();
+TextEditingController summaryController = TextEditingController();
+TextEditingController organisationNameController = TextEditingController();
+TextEditingController achievementsController = TextEditingController();
+TextEditingController descriptionController = TextEditingController();
 TextEditingController projectTitleController = TextEditingController();
+TextEditingController organisationInvolvementController =
+    TextEditingController();
+TextEditingController languageController = TextEditingController();
+TextEditingController intrestAreasController = TextEditingController();
 
-final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
 class _DataEntryScreenState extends State<DataEntryScreen> {
   bool switchValue = true;
@@ -131,6 +144,48 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
     }
   }
 
+  _terminate() {
+    setState(() {
+      experienceSelectedStartDate = DateTime.now();
+      experienceSelectedEndDate = DateTime.now();
+      educationSelectedStartDate = DateTime.now();
+      educationSelectedEndDate = DateTime.now();
+      otherProjectsSelectedStartDate = DateTime.now();
+      otherProjectsSelectedEndDate = DateTime.now();
+      skills.clear();
+      jobTitle.clear();
+      companyName.clear();
+      projectTitle.clear();
+      languages.clear();
+      intrestAreas.clear();
+    });
+  }
+
+  void _saveCVData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cvData = CVModel(
+      firstName: firstNameController.text.toString(),
+      // middleName: middleNameController.text.toString(),
+      // lastName: lastNameController.text.toString(),
+      // age: ageController.text.toString(),
+      // gender: selectedGender.toString(),
+      // skills: skillsController.text.toString(),
+      // jobTitle: jobTitleController.text.toString(),
+      // achievements: achievementsController.text.toString(),
+      // companyName: companyNameController.text.toString(),
+      // summary: summaryController.text.toString(),
+      // organisationName: organisationNameController.text.toString(),
+      // level: selectedLevel.toString(),
+      // projectTitle: projectTitleController.text.toString(),
+      // description: descriptionController.text.toString(),
+      // organisationInvolvedName:
+      //     organisationInvolvementController.text.toString(),
+      // languages: languageController.text.toString(),
+      // intrestAreas: intrestAreasController.text.toString(),
+    );
+    await prefs.setString('cvData', cvData.toMap().toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,6 +194,16 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
         backgroundColor: const Color.fromARGB(255, 40, 62, 73),
         centerTitle: true,
         title: const Text("Generate CV"),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const DataViewScreen()));
+              },
+              icon: const Icon(Icons.arrow_right_alt))
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -168,6 +233,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                   children: [
                     Expanded(
                       child: TextFormField(
+                        controller: firstNameController,
                         validator: (value) {
                           if (value!.length > 10) {
                             return "Not >10 char";
@@ -191,6 +257,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
+                        controller: middleNameController,
                         validator: (value) {
                           if (value!.length > 10) {
                             return "Not >10 char";
@@ -215,6 +282,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                   children: [
                     Expanded(
                       child: TextFormField(
+                        controller: lastNameController,
                         validator: (value) {
                           if (value!.length > 10) {
                             return "Not >10 char";
@@ -237,6 +305,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
+                        controller: ageController,
                         validator: (value) {
                           if (value!.length > 2) {
                             return "Invalid Age";
@@ -512,6 +581,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                         height: 10,
                       ),
                 TextFormField(
+                  controller: summaryController,
                   validator: (value) {
                     if (value!.length > 100) {
                       return "Not >100 char";
@@ -576,6 +646,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
+                  controller: organisationNameController,
                   validator: (value) {
                     if (value!.length > 10) {
                       return "Not >10 char";
@@ -655,6 +726,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                   height: 10,
                 ),
                 TextFormField(
+                  controller: achievementsController,
                   validator: (value) {
                     if (value!.length > 50) {
                       return "Not >50 char";
@@ -684,6 +756,8 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                         width: 10,
                       ),
                       CupertinoSwitch(
+                        trackColor: Colors.white,
+                        thumbColor: Colors.black,
                         value: switchValue,
                         onChanged: (value) {
                           setState(() {
@@ -805,6 +879,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                             ],
                           ),
                           TextFormField(
+                            controller: descriptionController,
                             validator: (value) {
                               if (value!.length > 100) {
                                 return "Not >100 char";
@@ -858,6 +933,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                       involvedInOrganisation
                           ? Expanded(
                               child: TextFormField(
+                                controller: organisationInvolvementController,
                                 validator: (value) {
                                   if (value!.length > 10) {
                                     return "Not >10 char";
@@ -1004,13 +1080,17 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                                 children: [
                                   MaterialButton(
                                     onPressed: () {
+                                      _saveCVData();
                                       _formKey.currentState!.reset();
+                                      setState(() {
+                                        _terminate();
+                                      });
                                       Navigator.pop(context);
-                                      // Navigator.push(
-                                      //     context,
-                                      //     CupertinoPageRoute(
-                                      //         builder: (context) =>
-                                      //             const DummyScreen()));
+                                      Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                              builder: (context) =>
+                                                  const DataViewScreen()));
                                     },
                                     child: const Text("Yes"),
                                   ),
