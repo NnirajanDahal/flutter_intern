@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,26 +15,31 @@ class DataEntryScreen extends StatefulWidget {
   State<DataEntryScreen> createState() => _DataEntryScreenState();
 }
 
-TextEditingController firstNameController = TextEditingController();
-TextEditingController middleNameController = TextEditingController();
-TextEditingController lastNameController = TextEditingController();
-TextEditingController ageController = TextEditingController();
-TextEditingController skillsController = TextEditingController();
-TextEditingController jobTitleController = TextEditingController();
-TextEditingController companyNameController = TextEditingController();
-TextEditingController summaryController = TextEditingController();
-TextEditingController organisationNameController = TextEditingController();
-TextEditingController achievementsController = TextEditingController();
-TextEditingController descriptionController = TextEditingController();
-TextEditingController projectTitleController = TextEditingController();
-TextEditingController organisationInvolvementController =
-    TextEditingController();
-TextEditingController languageController = TextEditingController();
-TextEditingController intrestAreasController = TextEditingController();
-
 GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+List<String> languages = [];
+List<String> intrestAreas = [];
+List<String> skills = [];
+List<String> jobTitle = [];
+List<String> companyName = [];
+List<String> projectTitle = [];
 
 class _DataEntryScreenState extends State<DataEntryScreen> {
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController middleNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
+  TextEditingController skillsController = TextEditingController();
+  TextEditingController jobTitleController = TextEditingController();
+  TextEditingController companyNameController = TextEditingController();
+  TextEditingController summaryController = TextEditingController();
+  TextEditingController organisationNameController = TextEditingController();
+  TextEditingController achievementsController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController projectTitleController = TextEditingController();
+  TextEditingController organisationInvolvementController =
+      TextEditingController();
+  TextEditingController languageController = TextEditingController();
+  TextEditingController intrestAreasController = TextEditingController();
   bool switchValue = true;
   bool otherProjectsChanged = true;
   bool involvedInOrganisation = false;
@@ -43,12 +50,6 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
   bool addProjectTitlePressed = false;
   bool addIntrestAreaPressed = false;
   List<String> educationLevel = ["SEE", "+2", "Bachelor", "Master", "Phd"];
-  List<String> languages = [];
-  List<String> intrestAreas = [];
-  List<String> skills = [];
-  List<String> jobTitle = [];
-  List<String> companyName = [];
-  List<String> projectTitle = [];
   String? selectedLevel;
   String? selectedGender;
   String? selectedOrganisation;
@@ -59,6 +60,12 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
   DateTime educationSelectedEndDate = DateTime.now();
   DateTime otherProjectsSelectedStartDate = DateTime.now();
   DateTime otherProjectsSelectedEndDate = DateTime.now();
+
+  late SharedPreferences pref;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> _selectExperienceStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -162,28 +169,47 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
   }
 
   void _saveCVData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cvData = CVModel(
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    List<CVModel> cvList = [];
+    CVModel cvData = CVModel(
       firstName: firstNameController.text.toString(),
-      // middleName: middleNameController.text.toString(),
-      // lastName: lastNameController.text.toString(),
-      // age: ageController.text.toString(),
-      // gender: selectedGender.toString(),
-      // skills: skillsController.text.toString(),
-      // jobTitle: jobTitleController.text.toString(),
-      // achievements: achievementsController.text.toString(),
-      // companyName: companyNameController.text.toString(),
-      // summary: summaryController.text.toString(),
-      // organisationName: organisationNameController.text.toString(),
-      // level: selectedLevel.toString(),
-      // projectTitle: projectTitleController.text.toString(),
-      // description: descriptionController.text.toString(),
-      // organisationInvolvedName:
-      //     organisationInvolvementController.text.toString(),
-      // languages: languageController.text.toString(),
-      // intrestAreas: intrestAreasController.text.toString(),
+      middleName: middleNameController.text.toString(),
+      lastName: lastNameController.text.toString(),
+      age: ageController.text.toString(),
+      gender: selectedGender.toString(),
+      skills: skillsController.text.toString(),
+      jobTitle: jobTitleController.text.toString(),
+      achievements: achievementsController.text.toString(),
+      companyName: companyNameController.text.toString(),
+      summary: summaryController.text.toString(),
+      organisationName: organisationNameController.text.toString(),
+      level: selectedLevel.toString(),
+      projectTitle: projectTitleController.text.toString(),
+      description: descriptionController.text.toString(),
+      organisationInvolvedName:
+          organisationInvolvementController.text.toString(),
+      languages: languageController.text.toString(),
+      intrestAreas: intrestAreasController.text.toString(),
     );
-    await prefs.setString('cvData', cvData.toMap().toString());
+    String prefData = pref.getString("cvData") ?? "";
+    if (prefData.isNotEmpty || prefData != "") {
+      setState(() {
+        List<CVModel> mapData = (json.decode(prefData) as List<dynamic>)
+            .map((e) => CVModel.fromMap(e))
+            .toList();
+        if (mapData.isNotEmpty) {
+          for (var i in mapData) {
+            cvList.add(i);
+          }
+        }
+      });
+    }
+    setState(() async {
+      cvList.add(cvData);
+      String setData = json.encode(cvList.map((item) => item.toMap()).toList());
+
+      await pref.setString('cvData', setData);
+    });
   }
 
   @override
@@ -194,16 +220,17 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
         backgroundColor: const Color.fromARGB(255, 40, 62, 73),
         centerTitle: true,
         title: const Text("Generate CV"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (context) => const DataViewScreen()));
-              },
-              icon: const Icon(Icons.arrow_right_alt))
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () {
+        //       Navigator.push(
+        //           context,
+        //           CupertinoPageRoute(
+        //               builder: (context) => const DataViewScreen()));
+        //     },
+        //     icon: const Icon(Icons.arrow_right_alt),
+        //   )
+        // ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -244,7 +271,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                         },
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r"^[a-zA-Z]+$")),
+                              RegExp(r"^[a-z A-Z]+$")),
                         ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -265,7 +292,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                         },
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r"^[a-zA-Z]+$")),
+                              RegExp(r"^[a-z A-Z]+$")),
                         ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -292,7 +319,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                         },
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r"^[a-zA-Z]+$")),
+                              RegExp(r"^[a-z A-Z]+$")),
                         ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -305,6 +332,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
+                        keyboardType: TextInputType.phone,
                         controller: ageController,
                         validator: (value) {
                           if (value!.length > 2) {
@@ -357,7 +385,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     }
                   },
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-z A-Z]+$")),
                   ],
                   controller: skillsController,
                   decoration: InputDecoration(
@@ -433,7 +461,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     }
                   },
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-z A-Z]+$")),
                   ],
                   controller: jobTitleController,
                   decoration: const InputDecoration(
@@ -493,7 +521,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     }
                   },
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-z A-Z]+$")),
                   ],
                   controller: companyNameController,
                   decoration: InputDecoration(
@@ -588,7 +616,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     }
                   },
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-z A-Z]+$")),
                   ],
                   maxLines: null,
                   decoration: const InputDecoration(
@@ -653,7 +681,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     }
                   },
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-z A-Z]+$")),
                   ],
                   decoration: const InputDecoration(
                       labelText: "Organisation Name",
@@ -733,7 +761,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                     }
                   },
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r"^[a-zA-Z]+$")),
+                    FilteringTextInputFormatter.allow(RegExp(r"^[a-z A-Z]+$")),
                   ],
                   maxLines: null,
                   decoration: const InputDecoration(
@@ -784,7 +812,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                             },
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
-                                  RegExp(r"^[a-zA-Z]+$")),
+                                  RegExp(r"^[a-z A-Z]+$")),
                             ],
                             controller: projectTitleController,
                             decoration: InputDecoration(
@@ -887,7 +915,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                             },
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
-                                  RegExp(r"^[a-zA-Z]+$")),
+                                  RegExp(r"^[a-z A-Z]+$")),
                             ],
                             maxLines: null,
                             decoration: const InputDecoration(
@@ -943,7 +971,7 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                                 },
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(
-                                      RegExp(r"^[a-zA-Z]+$")),
+                                      RegExp(r"^[a-z A-Z]+$")),
                                 ],
                                 decoration: const InputDecoration(
                                     labelText: "Organisation Name",
@@ -1080,13 +1108,21 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
                                 children: [
                                   MaterialButton(
                                     onPressed: () {
-                                      _saveCVData();
+                                      setState(() {
+                                        _saveCVData();
+                                      });
                                       _formKey.currentState!.reset();
                                       setState(() {
                                         _terminate();
                                       });
                                       Navigator.pop(context);
-                                      Navigator.push(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                        content:
+                                            Text("CV created successfully"),
+                                      ));
+
+                                      Navigator.pushReplacement(
                                           context,
                                           CupertinoPageRoute(
                                               builder: (context) =>
